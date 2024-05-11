@@ -115,7 +115,15 @@ export default function SessionSendTransactionModal() {
   const { icons, name, url } = requestSession.peer.metadata;
 
   return (
-    <ModalContent bg={"gray.900"}>
+    <ModalContent
+      bg={"gray.900"}
+      minW={{
+        base: 0,
+        sm: "30rem",
+        md: "40rem",
+        lg: "60rem",
+      }}
+    >
       <ModalHeader>Sign a Transaction</ModalHeader>
       <ModalCloseButton />
       <ModalBody>
