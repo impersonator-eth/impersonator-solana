@@ -28,13 +28,11 @@ export default function WalletConnect({
 }: WalletConnectParams) {
   const toast = useToast();
 
-  const { eip155Address, isConnectLoading, initialized } = useSnapshot(
-    SettingsStore.state
-  );
+  const { eip155Address, isConnectLoading, initialized, isEventsInitialized } =
+    useSnapshot(SettingsStore.state);
 
   const [uri, setUri] = useState("");
   const [pasted, setPasted] = useState(false);
-  const [eventsInitialized, setEventsInitialized] = useState(false);
 
   const resolveAndValidateAddress = async () => {
     let isValid;
@@ -97,13 +95,12 @@ export default function WalletConnect({
     /******************************************************************************
      * 1. Open session proposal modal for confirmation / rejection
      *****************************************************************************/
-    if (!eventsInitialized) {
-      setEventsInitialized(true);
+    if (!isEventsInitialized) {
+      SettingsStore.setIsEventsInitialized(true);
 
       web3wallet.on(
         "session_proposal",
         (proposal: SignClientTypes.EventArguments["session_proposal"]) => {
-          console.log("WalletConnect_session_proposal");
           console.log("session_proposal", proposal);
           // set the verify context so it can be displayed in the projectInfoCard
           SettingsStore.setCurrentRequestVerifyContext(proposal.verifyContext);

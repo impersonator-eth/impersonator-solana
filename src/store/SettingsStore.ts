@@ -1,6 +1,6 @@
 import { Verify, SessionTypes } from "@walletconnect/types";
 import { proxy } from "valtio";
-import { sepolia } from "wagmi/chains";
+import { mainnet } from "wagmi/chains";
 
 /**
  * Types
@@ -12,6 +12,7 @@ interface State {
   currentRequestVerifyContext?: Verify.Context;
   sessions: SessionTypes.Struct[];
   isConnectLoading: boolean;
+  isEventsInitialized: boolean;
 }
 
 /**
@@ -19,10 +20,11 @@ interface State {
  */
 const state = proxy<State>({
   initialized: false,
-  activeChainId: sepolia.id.toString(),
+  activeChainId: mainnet.id.toString(),
   eip155Address: "",
   sessions: [],
   isConnectLoading: false,
+  isEventsInitialized: false,
 });
 
 /**
@@ -52,6 +54,10 @@ const SettingsStore = {
 
   setIsConnectLoading(isConnectLoading: boolean) {
     state.isConnectLoading = isConnectLoading;
+  },
+
+  setIsEventsInitialized(isEventsInitialized: boolean) {
+    state.isEventsInitialized = isEventsInitialized;
   },
 };
 

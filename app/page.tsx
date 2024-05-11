@@ -1,8 +1,21 @@
 "use client";
 export const runtime = "nodejs";
 
-import { useEffect, useState } from "react";
-import { Container } from "@chakra-ui/react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Box,
+  Container,
+  HStack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  Image,
+  Text,
+  CloseButton,
+  Progress,
+} from "@chakra-ui/react";
 import MasterLayout from "@/components/MasterLayout";
 
 import WalletConnect from "@/components/WalletConnect";
@@ -10,12 +23,44 @@ import Modal from "@/components/Modal";
 
 import AddressInput from "@/components/AddressInput";
 
-import useInitialization from "@/src/hooks/useInitialization";
 import SettingsStore from "@/src/store/SettingsStore";
-import { web3wallet } from "@/src/utils/WalletConnectUtil";
+import { createWeb3Wallet, web3wallet } from "@/src/utils/WalletConnectUtil";
 import { RELAYER_EVENTS } from "@walletconnect/core";
+import { useSnapshot } from "valtio";
+import { getSdkError } from "@walletconnect/utils";
+import { SessionTypes } from "@walletconnect/types";
+
+const SessionTab = ({ session }: { session: SessionTypes.Struct }) => {
+  return (
+    <Tab>
+      <HStack>
+        <Image
+          w="1.4rem"
+          src={session.peer.metadata.icons[0]}
+          alt={session.peer.metadata.name + " logo"}
+        />
+        <Text>{session.peer.metadata.name}</Text>
+        <CloseButton
+          size="sm"
+          onClick={async (e) => {
+            e.preventDefault();
+            await web3wallet.disconnectSession({
+              topic: session.topic,
+              reason: getSdkError("USER_DISCONNECTED"),
+            });
+            SettingsStore.setSessions(
+              Object.values(web3wallet.getActiveSessions())
+            );
+          }}
+        />
+      </HStack>
+    </Tab>
+  );
+};
 
 export default function Home() {
+  const { sessions, initialized } = useSnapshot(SettingsStore.state);
+
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [isIFrameLoading, setIsIFrameLoading] = useState(false);
   const [isEIP155AddressValid, setIsEIP155AddressValid] = useState(true);
@@ -24,9 +69,21 @@ export default function Home() {
   const appUrl = "";
   const updateAddress = () => {};
 
-  // Step 1 - Initialize wallets and wallet connect client
-  const initialized = useInitialization();
-  SettingsStore.setInitialized(initialized);
+  const onInitialize = useCallback(async () => {
+    try {
+      await createWeb3Wallet();
+      SettingsStore.setInitialized(true);
+    } catch (err: unknown) {
+      console.error("Initialization failed", err);
+      alert(err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!initialized) {
+      onInitialize();
+    }
+  }, [initialized, onInitialize]);
 
   useEffect(() => {
     if (!initialized) return;
@@ -37,21 +94,62 @@ export default function Home() {
     web3wallet?.core.relayer.on(RELAYER_EVENTS.disconnect, () => {
       console.log("Network connection lost.", "error");
     });
+
+    SettingsStore.setSessions(Object.values(web3wallet.getActiveSessions()));
   }, [initialized]);
 
   return (
     <MasterLayout hideConnectWalletBtn={false}>
       <Container mt="10" mb="16" minW={["0", "0", "2xl", "2xl"]}>
-        <AddressInput
-          selectedTabIndex={selectedTabIndex}
-          isConnected={isConnected}
-          appUrl={appUrl}
-          isIFrameLoading={isIFrameLoading}
-          updateAddress={updateAddress}
-          isEIP155AddressValid={isEIP155AddressValid}
-          setIsEIP155AddressValid={setIsEIP155AddressValid}
-        />
-        <WalletConnect setIsEIP155AddressValid={setIsEIP155AddressValid} />
+        <Tabs>
+          <TabList>
+            {sessions.map((session, i) => (
+              <SessionTab key={i} session={session as SessionTypes.Struct} />
+            ))}
+            <Tab>+</Tab>
+          </TabList>
+          <TabPanels>
+            {sessions.map((session, i) => {
+              return (
+                <TabPanel key={i}>
+                  <Box>{session.peer.metadata.name}</Box>
+                  <AddressInput
+                    selectedTabIndex={selectedTabIndex}
+                    isConnected={isConnected}
+                    appUrl={appUrl}
+                    isIFrameLoading={isIFrameLoading}
+                    updateAddress={updateAddress}
+                    isEIP155AddressValid={isEIP155AddressValid}
+                    setIsEIP155AddressValid={setIsEIP155AddressValid}
+                  />
+                  <WalletConnect
+                    setIsEIP155AddressValid={setIsEIP155AddressValid}
+                  />
+                </TabPanel>
+              );
+            })}
+            <TabPanel p={0}>
+              {!initialized && (
+                <Progress size="xs" isIndeterminate roundedBottom={"15px"} />
+              )}
+              <Box p={4}>
+                <Box>New Session</Box>
+                <AddressInput
+                  selectedTabIndex={selectedTabIndex}
+                  isConnected={isConnected}
+                  appUrl={appUrl}
+                  isIFrameLoading={isIFrameLoading}
+                  updateAddress={updateAddress}
+                  isEIP155AddressValid={isEIP155AddressValid}
+                  setIsEIP155AddressValid={setIsEIP155AddressValid}
+                />
+                <WalletConnect
+                  setIsEIP155AddressValid={setIsEIP155AddressValid}
+                />
+              </Box>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </Container>
 
       <Modal />
