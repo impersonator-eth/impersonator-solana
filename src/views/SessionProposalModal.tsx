@@ -174,6 +174,7 @@ export default function SessionProposalModal() {
   // Handle approve action, construct session namespace
   const onApprove = useCallback(async () => {
     if (proposal && namespaces) {
+      SettingsStore.setIsConnectLoading(false);
       setIsLoadingApprove(true);
 
       try {

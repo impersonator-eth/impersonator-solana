@@ -27,11 +27,6 @@ import {
   polygon,
   arbitrumSepolia,
 } from "wagmi/chains";
-import useInitialization from "@/src/hooks/useInitialization";
-import useWalletConnectEventsManager from "@/src/hooks/useWalletConnectEventsManager";
-import SettingsStore from "@/src/store/SettingsStore";
-import { web3wallet } from "@/src/utils/WalletConnectUtil";
-import { RELAYER_EVENTS } from "@walletconnect/core";
 
 const appName = "SIWE Smart Accounts";
 const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID!;
@@ -71,23 +66,6 @@ const config = createConfig({
 const queryClient = new QueryClient();
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  // Step 1 - Initialize wallets and wallet connect client
-  const initialized = useInitialization();
-  SettingsStore.setInitialized(initialized);
-  // Step 2 - Once initialized, set up wallet connect event manager
-  useWalletConnectEventsManager(initialized);
-
-  useEffect(() => {
-    if (!initialized) return;
-    web3wallet?.core.relayer.on(RELAYER_EVENTS.connect, () => {
-      console.log("Network connection is restored!", "success");
-    });
-
-    web3wallet?.core.relayer.on(RELAYER_EVENTS.disconnect, () => {
-      console.log("Network connection lost.", "error");
-    });
-  }, [initialized]);
-
   return (
     <CacheProvider>
       <ChakraProvider theme={theme}>

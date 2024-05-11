@@ -15,6 +15,9 @@ import SettingsStore from "@/src/store/SettingsStore";
 import { useSnapshot } from "valtio";
 import { getEnsAddress } from "@/src/helpers/utils";
 import { isAddress } from "viem";
+import { SignClientTypes } from "@walletconnect/types";
+import { EIP155_SIGNING_METHODS } from "@/src/data/EIP155Data";
+import { Web3WalletTypes } from "@walletconnect/web3wallet";
 
 interface WalletConnectParams {
   setIsEIP155AddressValid: (isValid: boolean) => void;
@@ -31,6 +34,7 @@ export default function WalletConnect({
 
   const [uri, setUri] = useState("");
   const [pasted, setPasted] = useState(false);
+  const [eventsInitialized, setEventsInitialized] = useState(false);
 
   const resolveAndValidateAddress = async () => {
     let isValid;
@@ -89,12 +93,85 @@ export default function WalletConnect({
       }
     };
 
-    web3wallet.once("session_proposal", () => {
-      web3wallet.core.pairing.events.removeListener(
-        "pairing_expire",
-        pairingExpiredListener
+    /// === SETUP EVENTS ===
+    /******************************************************************************
+     * 1. Open session proposal modal for confirmation / rejection
+     *****************************************************************************/
+    if (!eventsInitialized) {
+      setEventsInitialized(true);
+
+      web3wallet.on(
+        "session_proposal",
+        (proposal: SignClientTypes.EventArguments["session_proposal"]) => {
+          console.log("WalletConnect_session_proposal");
+          console.log("session_proposal", proposal);
+          // set the verify context so it can be displayed in the projectInfoCard
+          SettingsStore.setCurrentRequestVerifyContext(proposal.verifyContext);
+          ModalStore.open("SessionProposalModal", { proposal });
+
+          web3wallet.core.pairing.events.removeListener(
+            "pairing_expire",
+            pairingExpiredListener
+          );
+        }
       );
-    });
+      web3wallet.on(
+        "session_request",
+        async (
+          requestEvent: SignClientTypes.EventArguments["session_request"]
+        ) => {
+          console.log("session_request", requestEvent);
+          const { topic, params, verifyContext } = requestEvent;
+          const { request } = params;
+          const requestSession =
+            web3wallet.engine.signClient.session.get(topic);
+          // set the verify context so it can be displayed in the projectInfoCard
+          SettingsStore.setCurrentRequestVerifyContext(verifyContext);
+
+          switch (request.method) {
+            case EIP155_SIGNING_METHODS.ETH_SIGN:
+            case EIP155_SIGNING_METHODS.PERSONAL_SIGN:
+              return ModalStore.open("SessionSignModal", {
+                requestEvent,
+                requestSession,
+              });
+
+            case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA:
+            case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V3:
+            case EIP155_SIGNING_METHODS.ETH_SIGN_TYPED_DATA_V4:
+              return ModalStore.open("SessionSignTypedDataModal", {
+                requestEvent,
+                requestSession,
+              });
+
+            case EIP155_SIGNING_METHODS.ETH_SEND_TRANSACTION:
+            case EIP155_SIGNING_METHODS.ETH_SIGN_TRANSACTION:
+              return ModalStore.open("SessionSendTransactionModal", {
+                requestEvent,
+                requestSession,
+              });
+
+            default:
+              return ModalStore.open("SessionUnsuportedMethodModal", {
+                requestEvent,
+                requestSession,
+              });
+          }
+        }
+      );
+      web3wallet.on("auth_request", (request: Web3WalletTypes.AuthRequest) => {
+        ModalStore.open("AuthRequestModal", { request });
+      });
+      web3wallet.engine.signClient.events.on("session_ping", (data) =>
+        console.log("ping", data)
+      );
+      web3wallet.on("session_delete", (data) => {
+        console.log("session_delete event received", data);
+        SettingsStore.setSessions(
+          Object.values(web3wallet.getActiveSessions())
+        );
+      });
+    }
 
     try {
       web3wallet.core.pairing.events.on(
