@@ -64,6 +64,7 @@ export default function Home() {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [isIFrameLoading, setIsIFrameLoading] = useState(false);
   const [isEIP155AddressValid, setIsEIP155AddressValid] = useState(true);
+  const [initSessionsLoaded, setInitSessionsLoaded] = useState(false);
   // FIXME: these
   const [isConnected, setIsConnected] = useState(false);
   const appUrl = "";
@@ -98,15 +99,23 @@ export default function Home() {
     SettingsStore.setSessions(Object.values(web3wallet.getActiveSessions()));
   }, [initialized]);
 
+  useEffect(() => {
+    // when initial sessions loaded, keep the tab on the new session
+    if (sessions.length > 0 && !initSessionsLoaded) {
+      setInitSessionsLoaded(true);
+      setSelectedTabIndex(sessions.length);
+    }
+  }, [sessions]);
+
   return (
     <MasterLayout hideConnectWalletBtn={false}>
       <Container mt="10" mb="16" minW={["0", "0", "2xl", "2xl"]}>
-        <Tabs>
+        <Tabs index={selectedTabIndex} onChange={setSelectedTabIndex}>
           <TabList>
             {sessions.map((session, i) => (
               <SessionTab key={i} session={session as SessionTypes.Struct} />
             ))}
-            <Tab>+</Tab>
+            <Tab>New Session</Tab>
           </TabList>
           <TabPanels>
             {sessions.map((session, i) => {
@@ -114,7 +123,6 @@ export default function Home() {
                 <TabPanel key={i}>
                   <Box>{session.peer.metadata.name}</Box>
                   <AddressInput
-                    selectedTabIndex={selectedTabIndex}
                     isConnected={isConnected}
                     appUrl={appUrl}
                     isIFrameLoading={isIFrameLoading}
@@ -135,7 +143,6 @@ export default function Home() {
               <Box p={4}>
                 <Box>New Session</Box>
                 <AddressInput
-                  selectedTabIndex={selectedTabIndex}
                   isConnected={isConnected}
                   appUrl={appUrl}
                   isIFrameLoading={isIFrameLoading}

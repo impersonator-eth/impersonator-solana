@@ -19,7 +19,7 @@ import SettingsStore from "@/src/store/SettingsStore";
 import { useSnapshot } from "valtio";
 
 interface AddressInputParams {
-  selectedTabIndex: number;
+  // selectedTabIndex: number;
   isConnected: boolean;
   appUrl: string | undefined;
   isIFrameLoading: boolean;
@@ -29,7 +29,6 @@ interface AddressInputParams {
 }
 
 function AddressInput({
-  selectedTabIndex,
   isConnected,
   appUrl,
   isIFrameLoading,
@@ -42,6 +41,9 @@ function AddressInput({
     onOpen: openAddressBook,
     onClose: closeAddressBook,
   } = useDisclosure();
+
+  // FIXME: update
+  const selectedTabIndex: number = 0;
 
   const { ensAvatar } = useSnapshot(SettingsStore.state);
 
