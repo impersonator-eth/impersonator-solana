@@ -8,6 +8,7 @@ import { mainnet } from "wagmi/chains";
 interface State {
   initialized: boolean;
   eip155Address: string;
+  ensAvatar?: string;
   activeChainId: string;
   currentRequestVerifyContext?: Verify.Context;
   sessions: SessionTypes.Struct[];
@@ -39,6 +40,10 @@ const SettingsStore = {
 
   setEIP155Address(eip155Address: string) {
     state.eip155Address = eip155Address;
+  },
+
+  setEnsAvatar(ensAvatar: string) {
+    state.ensAvatar = ensAvatar;
   },
 
   setActiveChainId(value: string) {

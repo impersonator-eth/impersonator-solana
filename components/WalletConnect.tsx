@@ -13,7 +13,7 @@ import ModalStore from "@/src/store/ModalStore";
 import { web3wallet } from "@/src/utils/WalletConnectUtil";
 import SettingsStore from "@/src/store/SettingsStore";
 import { useSnapshot } from "valtio";
-import { getEnsAddress } from "@/src/helpers/utils";
+import { getEnsAddress, getEnsAvatar } from "@/src/helpers/utils";
 import { isAddress } from "viem";
 import { SignClientTypes } from "@walletconnect/types";
 import { EIP155_SIGNING_METHODS } from "@/src/data/EIP155Data";
@@ -45,6 +45,13 @@ export default function WalletConnect({
       if (resolvedAddress) {
         _eip155address = resolvedAddress;
         isValid = true;
+
+        // resolve ENS avatar
+        getEnsAvatar(eip155Address).then((res) => {
+          if (res) {
+            SettingsStore.setEnsAvatar(res);
+          }
+        });
       } else if (isAddress(eip155Address)) {
         isValid = true;
       } else {

@@ -8,12 +8,15 @@ import {
   Button,
   HStack,
   useDisclosure,
+  InputLeftElement,
+  Image,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBook } from "@fortawesome/free-solid-svg-icons";
 import AddressBook from "./AddressBook";
 import SettingsStore from "@/src/store/SettingsStore";
+import { useSnapshot } from "valtio";
 
 interface AddressInputParams {
   selectedTabIndex: number;
@@ -40,6 +43,8 @@ function AddressInput({
     onClose: closeAddressBook,
   } = useDisclosure();
 
+  const { ensAvatar } = useSnapshot(SettingsStore.state);
+
   const [showAddress, setShowAddress] = useState("");
 
   return (
@@ -49,6 +54,11 @@ function AddressInput({
       </FormLabel>
       <HStack>
         <InputGroup>
+          {ensAvatar && (
+            <InputLeftElement>
+              <Image src={ensAvatar} alt="avatar" width="20px" height="20px" />
+            </InputLeftElement>
+          )}
           <Input
             placeholder="vitalik.eth"
             autoComplete="off"
