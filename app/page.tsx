@@ -15,6 +15,8 @@ import {
   Text,
   CloseButton,
   Progress,
+  CircularProgress,
+  Spinner,
 } from "@chakra-ui/react";
 import MasterLayout from "@/components/MasterLayout";
 
@@ -61,7 +63,7 @@ const SessionTab = ({ session }: { session: SessionTypes.Struct }) => {
 export default function Home() {
   const { sessions, initialized } = useSnapshot(SettingsStore.state);
 
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const [selectedTabIndex, setSelectedTabIndex] = useState(1);
   const [isIFrameLoading, setIsIFrameLoading] = useState(false);
   const [isEIP155AddressValid, setIsEIP155AddressValid] = useState(true);
   const [initSessionsLoaded, setInitSessionsLoaded] = useState(false);
@@ -104,6 +106,7 @@ export default function Home() {
     if (sessions.length > 0 && !initSessionsLoaded) {
       setInitSessionsLoaded(true);
       setSelectedTabIndex(sessions.length);
+      console.log("sessions", sessions);
     }
   }, [sessions]);
 
@@ -115,9 +118,19 @@ export default function Home() {
             {sessions.map((session, i) => (
               <SessionTab key={i} session={session as SessionTypes.Struct} />
             ))}
-            <Tab>New Session</Tab>
+            {!initialized && (
+              <Tab>
+                <Spinner />
+              </Tab>
+            )}
+            <Tab>+ New Session</Tab>
           </TabList>
           <TabPanels>
+            {!initialized && (
+              <TabPanel>
+                <Box p={4}>Loading past sessions...</Box>
+              </TabPanel>
+            )}
             {sessions.map((session, i) => {
               return (
                 <TabPanel key={i}>
@@ -137,9 +150,6 @@ export default function Home() {
               );
             })}
             <TabPanel p={0}>
-              {!initialized && (
-                <Progress size="xs" isIndeterminate roundedBottom={"15px"} />
-              )}
               <Box p={4}>
                 <Box>New Session</Box>
                 <AddressInput

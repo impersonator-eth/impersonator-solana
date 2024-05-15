@@ -214,13 +214,15 @@ export default function WalletConnect({
         />
       </FormControl>
       <Center>
-        <Button
-          onClick={() => onConnect()}
-          isLoading={isConnectLoading}
-          isDisabled={!initialized}
-        >
-          {!initialized ? "Initializing..." : "Connect"}
-        </Button>
+        {initialized && (
+          <Button
+            onClick={() => onConnect()}
+            isLoading={isConnectLoading}
+            isDisabled={!initialized}
+          >
+            Connect
+          </Button>
+        )}
       </Center>
     </>
   );
