@@ -7,6 +7,7 @@ import {
   FormLabel,
   Center,
   useToast,
+  Spinner,
 } from "@chakra-ui/react";
 import { parseUri } from "@walletconnect/utils";
 import ModalStore from "@/src/store/ModalStore";
@@ -186,6 +187,14 @@ export default function WalletConnect({
     } catch (error) {
       console.log((error as Error).message, "error");
       ModalStore.close();
+      toast({
+        title: "Connection Error",
+        description: (error as Error).message,
+        status: "error",
+        isClosable: true,
+        duration: 2000,
+      });
+      SettingsStore.setIsConnectLoading(false);
     }
   }
 
@@ -214,15 +223,25 @@ export default function WalletConnect({
         />
       </FormControl>
       <Center>
-        {initialized && (
-          <Button
-            onClick={() => onConnect()}
-            isLoading={isConnectLoading}
-            isDisabled={!initialized}
-          >
-            Connect
-          </Button>
-        )}
+        {initialized &&
+          (isConnectLoading ? (
+            <Box>
+              <Spinner />
+              <Button
+                mt="2rem"
+                onClick={() => {
+                  SettingsStore.setIsConnectLoading(false);
+                  ModalStore.close();
+                }}
+              >
+                Stop Loading ☠
+              </Button>
+            </Box>
+          ) : (
+            <Button onClick={() => onConnect()} isDisabled={!initialized}>
+              Connect
+            </Button>
+          ))}
       </Center>
     </>
   );

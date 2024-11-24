@@ -195,7 +195,7 @@ export default function Home() {
                     isEIP155AddressValid={isEIP155AddressValid}
                     setIsEIP155AddressValid={setIsEIP155AddressValid}
                   />
-                  <Center mt="4rem">✅ Connected</Center>
+                  <Center mt="3rem">✅ Connected</Center>
                 </TabPanel>
               );
             })}
