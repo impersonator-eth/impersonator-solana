@@ -39,6 +39,14 @@ export default function Navbar({
             />
             <Text>Impersonator</Text>
           </HStack>
+          <Center
+            pl="4rem"
+            fontSize={"sm"}
+            letterSpacing={"4px"}
+            color="purple.300"
+          >
+            (Solana)
+          </Center>
         </Heading>
         {/* <Center>
           <Heading

@@ -105,7 +105,7 @@ function AddressBook({
         <ModalBody>
           <HStack>
             <Input
-              placeholder="address / ens"
+              placeholder="solana address"
               value={newAddressInput}
               onChange={(e) => setNewAddressInput(e.target.value)}
             />
