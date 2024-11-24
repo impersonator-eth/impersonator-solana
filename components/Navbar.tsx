@@ -54,7 +54,7 @@ export default function Navbar({
       <Flex flex="1" justifyContent="flex-end" alignItems={"center"}>
         <Box pl="1rem">
           <Link
-            href={"https://github.com/impersonator-eth/impersonator"}
+            href={"https://github.com/impersonator-eth/impersonator-solana"}
             isExternal
           >
             <FontAwesomeIcon icon={faGithub} size="2x" />

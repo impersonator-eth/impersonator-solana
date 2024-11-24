@@ -31,13 +31,13 @@ export default function Footer() {
             Built by:{" "}
             <Link
               color={"twitter.300"}
-              href="https://twitter.com/apoorvlathey"
+              href="https://x.com/apoorveth"
               isExternal
             >
               <HStack>
                 <FontAwesomeIcon icon={faTwitter} size="lg" />
                 {"  "}
-                <Text display="inline">@apoorvlathey</Text> <ExternalLinkIcon />
+                <Text display="inline">@apoorveth</Text> <ExternalLinkIcon />
               </HStack>
             </Link>
           </Heading>
