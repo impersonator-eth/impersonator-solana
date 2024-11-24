@@ -35,29 +35,29 @@ export default function WalletConnect({
   const [pasted, setPasted] = useState(false);
 
   const resolveAndValidateAddress = async () => {
-    let isValid;
+    let isValid = true;
     let _eip155address = eip155Address;
-    if (!eip155Address) {
-      isValid = false;
-    } else {
-      // Resolve ENS
-      const resolvedAddress = await getEnsAddress(eip155Address);
-      if (resolvedAddress) {
-        _eip155address = resolvedAddress;
-        isValid = true;
+    // if (!eip155Address) {
+    //   isValid = false;
+    // } else {
+    //   // Resolve ENS
+    //   const resolvedAddress = await getEnsAddress(eip155Address);
+    //   if (resolvedAddress) {
+    //     _eip155address = resolvedAddress;
+    //     isValid = true;
 
-        // resolve ENS avatar
-        getEnsAvatar(eip155Address).then((res) => {
-          if (res) {
-            SettingsStore.setEnsAvatar(res);
-          }
-        });
-      } else if (isAddress(eip155Address)) {
-        isValid = true;
-      } else {
-        isValid = false;
-      }
-    }
+    //     // resolve ENS avatar
+    //     getEnsAvatar(eip155Address).then((res) => {
+    //       if (res) {
+    //         SettingsStore.setEnsAvatar(res);
+    //       }
+    //     });
+    //   } else if (isAddress(eip155Address)) {
+    //     isValid = true;
+    //   } else {
+    //     isValid = false;
+    //   }
+    // }
 
     if (!isValid) {
       toast({

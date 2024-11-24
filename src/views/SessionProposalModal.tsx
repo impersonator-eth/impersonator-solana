@@ -41,7 +41,7 @@ export default function SessionProposalModal() {
 
   const namespaces = useMemo(() => {
     const { requiredNamespaces, optionalNamespaces } = proposal.params;
-    const namespaceKey = "eip155";
+    const namespaceKey = "solana";
     const requiredNamespace = requiredNamespaces[namespaceKey] as
       | ProposalTypes.BaseRequiredNamespace
       | undefined;

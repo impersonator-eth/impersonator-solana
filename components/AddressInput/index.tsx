@@ -52,7 +52,7 @@ function AddressInput({
   return (
     <FormControl>
       <FormLabel fontWeight={"bold"}>
-        Enter Address or ENS to Impersonate
+        Enter Solana Address to Impersonate
       </FormLabel>
       <HStack>
         <InputGroup>
@@ -62,7 +62,7 @@ function AddressInput({
             </InputLeftElement>
           )}
           <Input
-            placeholder="vitalik.eth"
+            placeholder=""
             autoComplete="off"
             value={showAddress}
             onChange={(e) => {
