@@ -137,7 +137,10 @@ export default function Home() {
 
   return (
     <MasterLayout hideConnectWalletBtn={false}>
-      <Container mt="10" mb="16" minW={["0", "0", "2xl", "2xl"]}>
+      <Center mt="8" fontStyle={"italic"}>
+        Connect to Solana dapps as any Address!
+      </Center>
+      <Container mt="8" mb="16" minW={["0", "0", "2xl", "2xl"]}>
         <Tabs index={selectedTabIndex} onChange={setSelectedTabIndex}>
           <TabList>
             {sessions.map((session, i) => (
