@@ -148,6 +148,7 @@ function AddressBook({
                       key={i}
                       minW="0"
                       maxW="100%"
+                      flex="1"
                       whiteSpace="normal"
                       onClick={() => {
                         setShowAddress(address);
