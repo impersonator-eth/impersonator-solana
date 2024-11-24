@@ -5,6 +5,7 @@ import { useSnapshot } from "valtio";
 import SessionProposalModal from "@/src/views/SessionProposalModal";
 import SessionSignModal from "@/src/views/SessionSignModal";
 import SessionSendTransactionModal from "@/src/views/SessionSendTransactionModal";
+import SessionUnsuportedMethodModal from "@/src/views/SessionUnsuportedMethodModal";
 
 export default function Modal() {
   const { open, view } = useSnapshot(ModalStore.state);
@@ -23,6 +24,8 @@ export default function Modal() {
         return <SessionSignModal />;
       case "SessionSendTransactionModal":
         return <SessionSendTransactionModal />;
+      case "SessionUnsuportedMethodModal":
+        return <SessionUnsuportedMethodModal />;
       default:
         return null;
     }

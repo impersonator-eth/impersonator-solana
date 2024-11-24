@@ -20,6 +20,7 @@ import { useSnapshot } from "valtio";
 
 interface AddressInputParams {
   // selectedTabIndex: number;
+  address?: string; // from session
   isConnected: boolean;
   appUrl: string | undefined;
   isIFrameLoading: boolean;
@@ -29,6 +30,7 @@ interface AddressInputParams {
 }
 
 function AddressInput({
+  address,
   isConnected,
   appUrl,
   isIFrameLoading,
@@ -64,7 +66,7 @@ function AddressInput({
           <Input
             placeholder=""
             autoComplete="off"
-            value={showAddress}
+            value={address ?? showAddress}
             onChange={(e) => {
               const _showAddress = e.target.value;
               setShowAddress(_showAddress);
@@ -73,6 +75,7 @@ function AddressInput({
             }}
             bg={"brand.lightBlack"}
             isInvalid={!isEIP155AddressValid}
+            isDisabled={address ? true : false}
           />
           {(selectedTabIndex === 0 && isConnected) ||
           (selectedTabIndex === 1 && appUrl && !isIFrameLoading) ? (

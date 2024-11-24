@@ -1,4 +1,5 @@
 import { SelectedOptionState } from "@/types";
+import { SessionTypes } from "@walletconnect/types";
 import { Hex, createPublicClient, formatEther, formatUnits, http } from "viem";
 import { mainnet } from "viem/chains";
 import { normalize } from "viem/ens";
@@ -82,3 +83,10 @@ export function getConversion(
       return "";
   }
 }
+
+export const extractSolanaAddressFromSession = (session: any): string => {
+  const parts = (
+    session as SessionTypes.Struct
+  ).namespaces.solana.accounts[0].split(":");
+  return parts[parts.length - 1]; // Return the last part of the string
+};

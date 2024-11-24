@@ -17,6 +17,7 @@ import {
   Progress,
   CircularProgress,
   Spinner,
+  Center,
 } from "@chakra-ui/react";
 import MasterLayout from "@/components/MasterLayout";
 
@@ -31,8 +32,31 @@ import { RELAYER_EVENTS } from "@walletconnect/core";
 import { useSnapshot } from "valtio";
 import { getSdkError } from "@walletconnect/utils";
 import { SessionTypes } from "@walletconnect/types";
+import { extractSolanaAddressFromSession } from "@/src/helpers/utils";
 
-const SessionTab = ({ session }: { session: SessionTypes.Struct }) => {
+const SessionTab = ({
+  session,
+}: {
+  session: Readonly<
+    Omit<SessionTypes.Struct, "namespaces" | "requiredNamespaces"> & {
+      namespaces: {
+        [key: string]: {
+          chains?: readonly string[];
+          accounts: readonly string[];
+          methods: readonly string[];
+          events: readonly string[];
+        };
+      };
+      requiredNamespaces: {
+        [key: string]: {
+          chains?: readonly string[];
+          methods: readonly string[];
+          events: readonly string[];
+        };
+      };
+    }
+  >;
+}) => {
   return (
     <Tab>
       <HStack>
@@ -62,6 +86,8 @@ const SessionTab = ({ session }: { session: SessionTypes.Struct }) => {
 
 export default function Home() {
   const { sessions, initialized } = useSnapshot(SettingsStore.state);
+
+  console.log("sessions", sessions);
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(1);
   const [isIFrameLoading, setIsIFrameLoading] = useState(false);
@@ -102,13 +128,12 @@ export default function Home() {
   }, [initialized]);
 
   useEffect(() => {
-    // when initial sessions loaded, keep the tab on the new session
-    if (sessions.length > 0 && !initSessionsLoaded) {
+    // when initial sessions loaded or loading, keep the tab on the new session
+    if (!initSessionsLoaded && initialized) {
       setInitSessionsLoaded(true);
       setSelectedTabIndex(sessions.length);
-      console.log("sessions", sessions);
     }
-  }, [sessions]);
+  }, [sessions, initSessionsLoaded, initialized]);
 
   return (
     <MasterLayout hideConnectWalletBtn={false}>
@@ -116,7 +141,33 @@ export default function Home() {
         <Tabs index={selectedTabIndex} onChange={setSelectedTabIndex}>
           <TabList>
             {sessions.map((session, i) => (
-              <SessionTab key={i} session={session as SessionTypes.Struct} />
+              <SessionTab
+                key={i}
+                session={
+                  session as Readonly<
+                    Omit<
+                      SessionTypes.Struct,
+                      "namespaces" | "requiredNamespaces"
+                    > & {
+                      namespaces: {
+                        [key: string]: {
+                          chains?: readonly string[];
+                          accounts: readonly string[];
+                          methods: readonly string[];
+                          events: readonly string[];
+                        };
+                      };
+                      requiredNamespaces: {
+                        [key: string]: {
+                          chains?: readonly string[];
+                          methods: readonly string[];
+                          events: readonly string[];
+                        };
+                      };
+                    }
+                  >
+                }
+              />
             ))}
             {!initialized && (
               <Tab>
@@ -136,6 +187,7 @@ export default function Home() {
                 <TabPanel key={i}>
                   <Box>{session.peer.metadata.name}</Box>
                   <AddressInput
+                    address={extractSolanaAddressFromSession(session)}
                     isConnected={isConnected}
                     appUrl={appUrl}
                     isIFrameLoading={isIFrameLoading}
@@ -143,9 +195,7 @@ export default function Home() {
                     isEIP155AddressValid={isEIP155AddressValid}
                     setIsEIP155AddressValid={setIsEIP155AddressValid}
                   />
-                  <WalletConnect
-                    setIsEIP155AddressValid={setIsEIP155AddressValid}
-                  />
+                  <Center mt="4rem">✅ Connected</Center>
                 </TabPanel>
               );
             })}

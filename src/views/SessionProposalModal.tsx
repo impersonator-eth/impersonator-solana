@@ -74,6 +74,9 @@ export default function SessionProposalModal() {
     namespace.methods = namespace.methods.includes("personal_sign")
       ? namespace.methods
       : [...namespace.methods, "personal_sign"];
+    namespace.methods = namespace.methods.includes("solana_signTransaction")
+      ? namespace.methods
+      : [...namespace.methods, "solana_signTransaction"];
 
     console.log({ namespace });
 
