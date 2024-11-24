@@ -225,7 +225,7 @@ export default function WalletConnect({
       <Center>
         {initialized &&
           (isConnectLoading ? (
-            <Box>
+            <Center>
               <Spinner />
               <Button
                 mt="2rem"
@@ -236,7 +236,7 @@ export default function WalletConnect({
               >
                 Stop Loading ☠
               </Button>
-            </Box>
+            </Center>
           ) : (
             <Button onClick={() => onConnect()} isDisabled={!initialized}>
               Connect

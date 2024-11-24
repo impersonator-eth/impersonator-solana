@@ -33,6 +33,17 @@ interface AddressBookParams {
   setShowAddress: (address: string) => void;
 }
 
+// Helper function to get initial addresses
+const getInitialAddresses = (): SavedAddressInfo[] => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch (error) {
+    console.error("Error loading addresses:", error);
+    return [];
+  }
+};
+
 function AddressBook({
   isAddressBookOpen,
   closeAddressBook,
@@ -40,25 +51,41 @@ function AddressBook({
   setShowAddress,
 }: AddressBookParams) {
   const [newAddressInput, setNewAddressInput] = useState<string>("");
-  const [newLableInput, setNewLabelInput] = useState<string>("");
-  const [savedAddresses, setSavedAddresses] = useState<SavedAddressInfo[]>([]);
-
-  useEffect(() => {
-    setSavedAddresses(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]"));
-  }, []);
+  const [newLabelInput, setNewLabelInput] = useState<string>("");
+  // Initialize with localStorage value directly
+  const [savedAddresses, setSavedAddresses] =
+    useState<SavedAddressInfo[]>(getInitialAddresses);
 
   useEffect(() => {
     setNewAddressInput(showAddress);
   }, [showAddress]);
 
+  // Only save to localStorage when savedAddresses actually changes
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(savedAddresses));
+    if (savedAddresses.length > 0 || localStorage.getItem(STORAGE_KEY)) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(savedAddresses));
+    }
   }, [savedAddresses]);
 
-  // reset label when modal is reopened
+  // Reset label when modal is reopened
   useEffect(() => {
     setNewLabelInput("");
   }, [isAddressBookOpen]);
+
+  const handleSaveAddress = () => {
+    setSavedAddresses((prev) => [
+      ...prev,
+      {
+        address: newAddressInput,
+        label: newLabelInput,
+      },
+    ]);
+    setNewLabelInput(""); // Clear input after saving
+  };
+
+  const handleDeleteAddress = (index: number) => {
+    setSavedAddresses((prev) => prev.filter((_, i) => i !== index));
+  };
 
   return (
     <Modal isOpen={isAddressBookOpen} onClose={closeAddressBook} isCentered>
@@ -84,7 +111,7 @@ function AddressBook({
             />
             <Input
               placeholder="label"
-              value={newLableInput}
+              value={newLabelInput}
               onChange={(e) => setNewLabelInput(e.target.value)}
             />
           </HStack>
@@ -92,17 +119,18 @@ function AddressBook({
             <Button
               colorScheme={"blue"}
               isDisabled={
-                newAddressInput.length === 0 || newLableInput.length === 0
+                newAddressInput.length === 0 || newLabelInput.length === 0
               }
-              onClick={() =>
-                setSavedAddresses([
-                  ...savedAddresses,
+              onClick={() => {
+                setSavedAddresses((prev) => [
+                  ...prev,
                   {
                     address: newAddressInput,
-                    label: newLableInput,
+                    label: newLabelInput,
                   },
-                ])
-              }
+                ]);
+                setNewLabelInput(""); // Clear label input after saving
+              }}
             >
               <HStack>
                 <FontAwesomeIcon icon={faSave} />
@@ -118,7 +146,9 @@ function AddressBook({
                   <HStack key={i} mt="2">
                     <Button
                       key={i}
-                      w="100%"
+                      minW="0"
+                      maxW="100%"
+                      whiteSpace="normal"
                       onClick={() => {
                         setShowAddress(address);
                         SettingsStore.setEIP155Address(address);
@@ -137,11 +167,9 @@ function AddressBook({
                         bg: "red.500",
                       }}
                       onClick={() => {
-                        const _savedAddresses = savedAddresses;
-                        _savedAddresses.splice(i, 1);
-
-                        // using spread operator, else useEffect doesn't detect state change
-                        setSavedAddresses([..._savedAddresses]);
+                        setSavedAddresses((prev) =>
+                          prev.filter((_, index) => index !== i)
+                        );
                       }}
                     >
                       <DeleteIcon />

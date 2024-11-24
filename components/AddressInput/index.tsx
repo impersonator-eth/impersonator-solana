@@ -101,9 +101,11 @@ function AddressInput({
             )
           )}
         </InputGroup>
-        <Button onClick={openAddressBook}>
-          <FontAwesomeIcon icon={faBook} />
-        </Button>
+        {!address && (
+          <Button onClick={openAddressBook}>
+            <FontAwesomeIcon icon={faBook} />
+          </Button>
+        )}
         <AddressBook
           isAddressBookOpen={isAddressBookOpen}
           closeAddressBook={closeAddressBook}
