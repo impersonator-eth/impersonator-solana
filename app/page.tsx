@@ -18,6 +18,7 @@ import {
   CircularProgress,
   Spinner,
   Center,
+  Heading,
 } from "@chakra-ui/react";
 import MasterLayout from "@/components/MasterLayout";
 
@@ -220,6 +221,20 @@ export default function Home() {
             </TabPanel>
           </TabPanels>
         </Tabs>
+
+        <Box mt="3rem">
+          <Heading fontSize={"lg"}>How to use:</Heading>
+          <Box
+            mt="0.5rem"
+            as="iframe"
+            width="100%"
+            height="315"
+            src="https://www.youtube.com/embed/eVFB7QM2um0"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </Box>
       </Container>
 
       <Modal />
