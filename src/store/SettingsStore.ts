@@ -54,7 +54,10 @@ const SettingsStore = {
     state.currentRequestVerifyContext = context;
   },
   setSessions(sessions: SessionTypes.Struct[]) {
-    state.sessions = sessions;
+    // Filter out sessions without a valid solana namespace (e.g. cached EVM-only sessions)
+    state.sessions = sessions.filter(
+      (s) => s.namespaces?.solana?.accounts?.length > 0
+    );
   },
 
   setIsConnectLoading(isConnectLoading: boolean) {
