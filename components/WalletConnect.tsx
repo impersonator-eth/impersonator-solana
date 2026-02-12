@@ -205,6 +205,13 @@ export default function WalletConnect({
     }
   }, [uri]);
 
+  // Clear URI when connection loading finishes (e.g. modal closed/rejected)
+  useEffect(() => {
+    if (!isConnectLoading && uri) {
+      setUri("");
+    }
+  }, [isConnectLoading]);
+
   return (
     <>
       <FormControl mt="1rem" mb="1rem">
